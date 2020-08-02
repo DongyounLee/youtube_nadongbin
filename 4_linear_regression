@@ -1,0 +1,40 @@
+#노동시간에 따른 매출 선형회귀 인공지능 구현
+#노동시간(x)에 따른 매출(y)를 주면 반복계산을 통해 가장 적합한 선형식을 추론한다
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+#텐서플로 호출, tf라는 변수명으로 지정(버전2로 바뀌어서 기존의 버전 1처럼 동작하도록 강제적인 명령을 넣어줌)
+xData = [1, 2, 3, 4, 5, 6, 7]
+yData = [25000, 55000, 75000, 110000, 128000, 155000, 180000]
+#x와 y 데이터 입력
+W = tf.Variable(tf.random_uniform([1], -100, 100))
+#기울기, -100~100사이의 랜덤 값 입력
+b = tf.Variable(tf.random_uniform([1], -100, 100))
+#y절편, -100~100사이의 랜덤 값 입력
+X = tf.placeholder(tf.float32)
+Y = tf.placeholder(tf.float32)
+#placeholde=하나의 틀(변수) 버전2에서는 사용하지 않음
+H = W * X + b
+#가설 식, 예측 값
+cost = tf.reduce_mean(tf.square(H - Y))
+#비용함수, reduce_mean은 평균을 구하는 것, squre는 제곱
+a = tf.Variable(0.01)
+#경사하강법, 점프의 사이즈=0.01
+optimizer = tf.train.GradientDescentOptimizer(a)
+#텐서플로가 제공하는 경사하강 학습법 라이브러리
+train = optimizer.minimize(cost)
+#비용함수를 최소화하는 학습
+init = tf.global_variables_initializer()
+#변수 초기화
+sess = tf.Session()
+#하나의 세션 지정
+sess.run(init)
+#세션 초기화
+#실제 학습 시작, 반복문
+for i in range(5001):
+    sess.run(train, feed_dict={X: xData, Y: yData})
+    #각 x와 y를 매칭
+    if i % 500 == 0:
+        print (i, sess.run(cost, feed_dict={X: xData, Y: yData}), sess.run(W), sess.run(b))
+        #500번에 한번씩 학습결과 보여주기
+print (sess.run(H,feed_dict={X: [8]}))
+#최종 학습 결과 보여주기(x가 8일때 예측 값)
